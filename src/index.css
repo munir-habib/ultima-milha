@@ -1,0 +1,292 @@
+@import '@fontsource-variable/inter';
+@import 'tailwindcss';
+
+/* ---------- Design tokens (nunca usar hex nos componentes) ---------- */
+:root,
+:root[data-theme='light'] {
+  /* tema claro: tons mais escuros — nada de branco puro */
+  --bg: #dde1e6;
+  --card: #e8ebef;
+  --border: #c3c9d0;
+  --fg: #22262c;
+  --muted: #5a626d;
+  --field: #d3d8de;
+  --neu-hi: #f7f8fa;
+  --neu-lo: #b9bfc6;
+  /* Pendente: mais saturado, mais grosso e com glow maior (a mesma intensidade le-se mais fraca sobre fundo claro) */
+  --pending-color: #dc2626;
+  --pending-width: 2px;
+  --pending-glow: 0 0 0 4px rgba(220, 38, 38, 0.22);
+  --pending-glow-max: 0 0 0 8px rgba(220, 38, 38, 0.06);
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  --bg: #0a0a0a;
+  --card: #111111;
+  --border: #222222;
+  --fg: #fafafa;
+  --muted: #8a8a8a;
+  --field: #171717;
+  --neu-hi: #1b1b1b;
+  --neu-lo: #000000;
+  --pending-color: #ef4444;
+  --pending-width: 1.5px;
+  --pending-glow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+  --pending-glow-max: 0 0 0 7px rgba(239, 68, 68, 0.05);
+  color-scheme: dark;
+}
+/* Cores semanticas: iguais nos dois temas */
+:root {
+  --revenue: #60a5fa;
+  --positive: #22c55e;
+  --negative: #ef4444;
+  --pending: #f59e0b;
+  --brand: #60a5fa;
+  /* aliases usados pela transicao de entrada */
+  --accent: var(--brand);
+  --bg-surface: var(--bg);
+  --shadow-neu: 9px 9px 20px var(--neu-lo), -9px -9px 20px var(--neu-hi);
+  --negative-ring: rgba(239, 68, 68, 0.15);
+  /* cor por tipo de custo */
+  --cost-fuel: #f59e0b;
+  --cost-tolls: #a855f7;
+  --cost-iuc: #14b8a6;
+  --cost-insurance: #ef4444;
+  --cost-salaries: #f97316;
+  --cost-maintenance: #22c55e;
+  --cost-other: #9ca3af;
+  --cost-rental: #ec4899;
+}
+
+@theme inline {
+  --font-sans: 'Inter Variable', system-ui, sans-serif;
+  --color-bg: var(--bg);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-field: var(--field);
+  --color-revenue: var(--revenue);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+  --color-pending: var(--pending);
+  --color-brand: var(--brand);
+  --color-cost-fuel: var(--cost-fuel);
+  --color-cost-tolls: var(--cost-tolls);
+  --color-cost-iuc: var(--cost-iuc);
+  --color-cost-insurance: var(--cost-insurance);
+  --color-cost-salaries: var(--cost-salaries);
+  --color-cost-maintenance: var(--cost-maintenance);
+  --color-cost-other: var(--cost-other);
+  --color-cost-rental: var(--cost-rental);
+  --radius-card: 12px;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Espaco para a barra inferior e FAB no mobile (safe-area incluida) */
+.pb-nav {
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+}
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* KPI principal: numeros grandes */
+.kpi-value {
+  font-size: 2.25rem;
+  line-height: 1.1;
+  font-weight: 700;
+}
+@media (min-width: 1024px) {
+  .kpi-value {
+    font-size: 2.5rem;
+  }
+}
+
+/* Relatorio PDF (imprimir / guardar como PDF): tema claro e sem navegacao */
+@media print {
+  :root,
+  :root[data-theme='dark'],
+  :root[data-theme='light'] {
+    --bg: #ffffff;
+    --card: #ffffff;
+    --border: #d4d4d4;
+    --fg: #111111;
+    --muted: #555555;
+    --field: #f5f5f5;
+    color-scheme: light;
+  }
+  body {
+    background: #fff;
+  }
+  .print-hide {
+    display: none !important;
+  }
+  main {
+    padding: 0 !important;
+  }
+  @page {
+    margin: 14mm;
+  }
+}
+
+/* Lancamento por validar (Contabilidade): contorno vermelho em qualquer vista e nos dois temas */
+.pending-outline {
+  border: var(--pending-width) solid var(--pending-color);
+  box-shadow: var(--pending-glow);
+  /* a UNICA animacao em loop da app (as outras sao pontuais): pulso lento do glow */
+  animation: pending-pulse 1.8s ease-in-out infinite;
+}
+@keyframes pending-pulse {
+  50% {
+    box-shadow: var(--pending-glow-max);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pending-outline {
+    animation: none; /* fica so o contorno estatico */
+  }
+}
+
+/* ---------- Transicao de entrada (login -> app): so transform e opacity ---------- */
+@keyframes entry-login-out {
+  to {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+.entry-login-leave {
+  animation: entry-login-out var(--entry-login-ms, 220ms) ease-in forwards;
+  pointer-events: none;
+}
+@keyframes entry-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes entry-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+.entry-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background: var(--bg-surface);
+  animation: entry-fade-in 140ms ease-out both;
+}
+.entry-overlay-out {
+  animation: entry-fade-out var(--entry-overlay-ms, 250ms) ease-out forwards;
+  pointer-events: none;
+}
+.entry-circle {
+  position: relative;
+  width: 7rem;
+  height: 7rem;
+  border-radius: 9999px;
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-neu);
+}
+/* os icones alternam em ciclo (um de cada vez, crossfade); so opacity/transform => corre no compositor,
+   mesmo que a app montada por baixo ocupe o thread principal */
+@keyframes entry-icon-cycle {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  12%,
+  22% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  34%,
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+.entry-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  animation: entry-icon-cycle var(--entry-cycle-ms, 960ms) linear infinite backwards;
+  animation-delay: calc(var(--i) * var(--entry-step-ms, 240ms));
+}
+.entry-icon svg {
+  width: 2.75rem;
+  height: 2.75rem;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.entry-label {
+  margin-top: 2rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+@keyframes entry-dot {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.entry-dot {
+  animation: entry-dot 1s infinite;
+}
+.entry-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.entry-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+@keyframes entry-app-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.entry-app-hidden {
+  opacity: 0;
+}
+.entry-app-reveal {
+  animation: entry-app-in var(--entry-reveal-ms, 400ms) ease-out backwards;
+}
+/* Reduzir movimento: a transicao nem chega a montar-se (ver useEntrySequence); isto e a rede de seguranca */
+@media (prefers-reduced-motion: reduce) {
+  .entry-login-leave,
+  .entry-overlay,
+  .entry-overlay-out,
+  .entry-app-reveal,
+  .entry-dot {
+    animation: none;
+  }
+  .entry-icon {
+    animation: none;
+  }
+}
