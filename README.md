@@ -43,11 +43,9 @@ React · TypeScript · Vite · Tailwind CSS 4 · Supabase (PostgreSQL, Auth, Row
 | 🟪 | `.claude/` and `CLAUDE.md` | Project rules for Claude Code, test sub-agents and a write-guard hook |
 | ⬜ | `public/` and root files | PWA icon, Vite, TypeScript and package configuration |
 
-<!-- Demo: add your screenshots to docs/screenshots/ and uncomment.
 ## Demo
-![Home](docs/screenshots/home.png)
-[Watch the video](https://youtu.be/...)
--->
+
+[Watch the 1-minute demo video](https://youtu.be/ezFnUG9opUk)
 
 ## Run locally
 
